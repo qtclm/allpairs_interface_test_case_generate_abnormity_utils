@@ -127,3 +127,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# custom add
+.idea
+__pycache__
+html/
+.pytest_cache
+*.log
+*.json
+log/
+report/
+case_generate_datas/
+swagger_api_files/
+allure_results/
+utils/__pycache__
+
