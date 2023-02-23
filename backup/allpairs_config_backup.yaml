@@ -1,0 +1,48 @@
+api_config:
+    # 定义接口参数描述中各个类型的默认值
+    api_params_ref_result_properties_type_default :
+      { "int":0,"integer":0, "number":0,"float":0.0,"double":0.0,
+        "null":None,"object":dict(),"set":set(),"string":"","array":[],
+        "bool":False,"boolean":False,}
+    # 断言追加http状态响应码
+    expected_extra_info:
+      { "http_status_code": 200 }
+    # 定义不需要生成正交测试用例的接口集合
+    black_api_set: { }
+    # 用户自定义接口枚举参数,key为：api_path+'_'+api_method,body:请求参数定义,path：uri参数定义,
+    #custom_api_enum_type：用户自定义接口枚举参数类型:支持params_value_type（基于value值的类型进行替换）、params_key（基于参数key进行配置）
+    custom_api_enum_data:
+      {
+          "/v1/stakes/{stakeId}": {"body":{ "latitude": [ 1,2 ], "longitude": [ 3,4 ],"latitude2": [ 1,2 ], "longitude2": [ 3,4 ] },
+          "path":{"stakeId3":[5,6],"stakeId2":[5,6]},"custom_api_enum_type":"params_key"},
+#            "/v1/stakes/{stakeId}": { "body": { "int": [ 1,2 ], "str": [ '3','4' ],"bool": [ True,False ], "list": [[ 3,4 ],[5,6]] },
+#                                      "path": { "int": [ 5,6 ],"str": [ '5','6' ] },"custom_api_enum_type": "params_value_type" },
+          "/v1/collector/find-label-modification-record": { "body": { "pageNum": [ 1,2 ], "pageSize": [ 3,4 ],"latitude2": [ 1,2 ], "longitude2": [ 3,4 ] },
+                                    "path": { "stakeId": [ 5,6 ],"stakeId2": [ 5,6 ] },"custom_api_enum_type": "params_key" },
+#            "/v1/collector/find-label-modification-record": { "body": { "int": [ 1,2 ],"bool": [ True,False ], "list": [[ 3,4 ],[5,6]] },
+#                                      "path": { "int": [ 5,6 ],"str": [ '5','6' ] },"custom_api_enum_type": "params_value_type" },
+
+      }
+    case_name_identifying: "-接口异常测试用例(基于正交实验自动生成)"
+
+excel_config:
+    read_excel_case_field_desc :
+      {'case': 0, 'uri': 1, 'method': 2, "params_path": 3, "params_body": 5,"response_body": 7, "skip": 9}
+    # 数据处理前的case表头，写入excel中最终会删除params_path,且params_body替换为params && response_body替换为expected
+    write_excel_case_field_desc :
+      {'case': 0, 'uri': 1, 'method': 2, 'params_path': 3, 'params_body': 4,'response_body': 5, 'skip': 6}
+    # 定义excle分批保存条数，避免一次性写入太多数据造成数据丢失
+    batch_save_num: 5
+
+
+common_config:
+    file_path: case_generate_datas
+    #    excel_name_params_field_detail : 'auto_genrate_api_case_allpairspy_params_field_detail.xlsx'
+    #    excel_name_params_obj : 'auto_genrate_api_case_allpairspy_params_obj_params.xlsx'
+    excel_name_params_field_detail_file_name: 'auto_genrate_api_case_allpairspy_params_field_detail_custom.xlsx'
+    excel_name_params_obj_file_name: 'auto_genrate_api_case_allpairspy_params_obj_params_custom.xlsx'
+    excel_name_swagger_api_data_file_name: 'maint-apiv2-api-docs.xlsx'
+    # 是否删除旧的文件:包含excel文件与已经生成过用例的接口清单文件
+    is_rm_ord_file : False
+    #保存已经生成过用例的接口清单文件
+    already_generate_api_file_name: already_generate.txt
