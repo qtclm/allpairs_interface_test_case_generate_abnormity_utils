@@ -8,9 +8,7 @@
 
 import pymysql
 from threading import RLock
-import sys
-sys.path.append("../../")
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 import traceback
 #Lock用于增加互斥锁，防止多线程执行sql报错
 # lock和rlock（递归锁）的区别:

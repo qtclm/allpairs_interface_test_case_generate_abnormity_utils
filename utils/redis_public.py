@@ -7,11 +7,8 @@
 """
 
 import traceback
-
 import redis
-import sys
-sys.path.append("../../")
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 
 class operationRedis(object):
     '''

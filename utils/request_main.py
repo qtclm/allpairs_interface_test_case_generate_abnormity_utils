@@ -9,9 +9,9 @@
 import json
 import traceback
 import requests
-from api_case_generate_tools.utils.operation_logging import operationLogging
-from api_case_generate_tools.utils.curl_generate_util import to_curl
-from api_case_generate_tools.utils.other_util import otherUtil
+from utils.operation_logging import operationLogging
+from utils.curl_generate_util import to_curl
+from utils.other_util import otherUtil
 
 
 class requestMain(object):

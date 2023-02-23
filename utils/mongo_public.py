@@ -4,10 +4,9 @@
 @IDE:pycharm'''
 
 import traceback
-
 import pymongo
 import sys
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 
 class operationMongo(object):
 

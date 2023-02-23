@@ -6,12 +6,9 @@
 @Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """
 
-import sys
 import time
-
-sys.path.append('../../')
-from api_case_generate_tools.utils.mysql_public import operationMysql
-from api_case_generate_tools.utils.operation_yaml import operationYaml
+from utils.mysql_public import operationMysql
+from utils.operation_yaml import operationYaml
 import pymysql
 
 class Config(object):

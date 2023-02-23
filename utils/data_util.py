@@ -8,9 +8,9 @@ import traceback
 
 import jsonpath_rw
 
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 from jsonpath_rw_ext import parse
-from api_case_generate_tools.utils.time_util import timeUtil
+from utils.time_util import timeUtil
 
 
 class dataUtil(timeUtil):

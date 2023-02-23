@@ -6,10 +6,9 @@
 @Desc            :
 """
 
-import sys
-sys.path.append('../../')
-from api_case_generate_tools.utils.redis_public import operationRedis
-from api_case_generate_tools.utils.operation_yaml import operationYaml
+
+from utils.redis_public import operationRedis
+from utils.operation_yaml import operationYaml
 
 class Config(object):
     def __init__(self):

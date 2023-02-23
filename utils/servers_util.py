@@ -12,7 +12,7 @@ import tempfile
 import sys
 import traceback
 import platform
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 
 system_type=platform.system()
 log=operationLogging()

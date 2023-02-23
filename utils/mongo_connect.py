@@ -5,10 +5,8 @@ File Name：     Mongo_connect
 date：          2020/4/17 13:12 
 """
 
-import sys
-sys.path.append('../../')
-from api_case_generate_tools.utils.mongo_public import operationMongo
-from api_case_generate_tools.utils.operation_yaml import operationYaml
+from utils.mongo_public import operationMongo
+from utils.operation_yaml import operationYaml
 
 class Config(object):
     def __init__(self):
