@@ -9,8 +9,8 @@ import json
 import os
 import openpyxl
 import xlsxwriter as xlsxwriter
-from api_case_generate_tools.utils.exception_util import opeartionTypeError,sheetNameNotFoundError
-from api_case_generate_tools.utils.other_util import otherUtil
+from utils.exception_util import opeartionTypeError,sheetNameNotFoundError
+from utils.other_util import otherUtil
 
 
 class operationExcel(object):

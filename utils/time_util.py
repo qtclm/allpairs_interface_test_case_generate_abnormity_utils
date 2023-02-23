@@ -12,7 +12,7 @@ import sys
 import time
 import datetime
 import dateutil
-from api_case_generate_tools.utils.other_util import otherUtil
+from utils.other_util import otherUtil
 
 class timeUtil(otherUtil):
 

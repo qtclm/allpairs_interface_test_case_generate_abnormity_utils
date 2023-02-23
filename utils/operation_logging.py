@@ -9,9 +9,9 @@
 import os
 from loguru import logger
 # 发生Error日志时，发邮件进行警报
-from api_case_generate_tools.utils.send_email import sendEmail
+from utils.send_email import sendEmail
 from tabulate import tabulate
-from api_case_generate_tools.utils.time_util import timeUtil
+from utils.time_util import timeUtil
 
 class operationLogging(object):
     __email = sendEmail()

@@ -10,8 +10,8 @@ import time
 import functools
 import traceback
 import requests.models
-from api_case_generate_tools.utils.operation_logging import operationLogging
-from api_case_generate_tools.utils.data_util import dataUtil
+from utils.operation_logging import operationLogging
+from utils.data_util import dataUtil
 
 # 注意事项：装饰器不能装饰classmethod
 

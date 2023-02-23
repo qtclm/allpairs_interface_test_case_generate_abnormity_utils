@@ -5,7 +5,7 @@
 @Date            : 2023/2/21 11:13
 @Desc            : 
 """
-from api_case_generate_tools.utils.operation_logging import operationLogging
+from utils.operation_logging import operationLogging
 
 
 class baseError(Exception):

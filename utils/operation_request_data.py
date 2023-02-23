@@ -4,7 +4,7 @@ __author__ = qtclm
 File Name：     DataUtil
 date：          2020/8/12 16:10
 """
-from api_case_generate_tools.utils.data_util import dataUtil
+from utils.data_util import dataUtil
 
 
 class operationRequestData(dataUtil):
