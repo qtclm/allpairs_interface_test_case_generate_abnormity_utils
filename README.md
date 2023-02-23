@@ -1,0 +1,2 @@
+# allpairs_interface_test_case_generate_abnormity_utils
+一个基于正交实验（allpairs）生成接口测试用例的工具
