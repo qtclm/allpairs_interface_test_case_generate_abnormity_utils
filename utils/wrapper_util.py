@@ -92,9 +92,9 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
         raise Exception("retry_sleep_time(重试等待时间)必须是int、float类型")
 
     judge_retry_conditon_type=retry_conditon_judge.lower().strip()
-    group_response_status='response_status_match'
-    group_response_content='response_content_match'
-    py_builtin_types = (str, int, float, list, set, tuple, dict, bool, bytes, type) #定义python内置类型，用于判断
+    group_response_status='result_status_match'
+    group_response_content='result_content_match'
+    py_builtin_types = (str,type(None),int, float, list, set, tuple, dict, bool, bytes, type) #定义python内置类型，用于判断
 
     def retry_wrapper_main(func):
         @functools.wraps(func) #防止函数原信息被改变
@@ -151,52 +151,84 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
 
             def retry_condition_and_exec_result_dispose(retry_condition,exec_result):
                 '''处理重试条件与函数执行结果'''
-                def response_dispose(response:requests.models.Response,attribute='status_code'):
+                def response_dispose(response,attribute='status_code'):
                     '''如果类型是response且包含特定属性，返回属性'''
-                    is_status_code = hasattr(response, attribute)
-                    args_obj_str = eval(f'int(response.{attribute})') if is_status_code else response
+                    if isinstance(response,requests.models.Response):
+                        is_status_code = hasattr(response, attribute)
+                        args_obj_str = eval(f'int(response.{attribute})') if is_status_code else response
+                        return args_obj_str
+                    return response
+
+                def class_repr_obj_type_dispose(exec_result):
+                    '''返回可被eval的数据类型'''
+                    args_obj_str, import_module_dict = data_util.dynamic_import_module(module_name=exec_result)
+                    if import_module_dict:
+                        globals().update(import_module_dict)
+                        if all([i in import_module_dict.keys() for i in args_obj_str.split('.')]):
+                            args_obj_str = eval(args_obj_str)
+                        else:
+                            args_obj_str = data_util.build_str_obj(args_obj)
+                    else:
+                        args_obj_str = eval(exec_result) if \
+                            data_util.isevaluatable_unsafety(exec_result, is_dynamic_import_module=False) \
+                            else data_util.build_str_obj(exec_result)
                     return args_obj_str
+
                 def retry_condition_and_exec_result_dispose_main(args_obj):
                     if not isinstance(args_obj,py_builtin_types):
                         return args_obj
                     args_obj_str=args_obj
                     if isinstance(args_obj_str, str):
-                        args_obj_str=data_util.class_type_str_dispose(str_in=args_obj_str)
-                        import_module_dict = data_util.dynamic_import_module(module_name=args_obj_str)
-                        if import_module_dict:
-                            globals().update(import_module_dict)
-                            if all([i in import_module_dict.keys() for i in args_obj_str.split('.') ]):
-                                args_obj_str=eval(args_obj_str)
-                            else:
-                                args_obj_str = data_util.build_str_obj(args_obj)
-                        else:
-                            args_obj_str = eval(args_obj) if \
-                                data_util.isevaluatable_unsafety(args_obj, is_dynamic_import_module=False) \
-                                else data_util.build_str_obj(args_obj)
+                        args_obj_str=class_repr_obj_type_dispose(args_obj_str)
                     return args_obj_str
 
-                if isinstance(retry_condition,str):
-                    retry_condition = retry_condition_and_exec_result_dispose_main(retry_condition)
-                    exec_result=retry_condition_and_exec_result_dispose_main(exec_result)
+                retry_condition = retry_condition_and_exec_result_dispose_main(retry_condition)
+                exec_result=retry_condition_and_exec_result_dispose_main(exec_result)
 
-                elif isinstance(retry_condition,(int,list,tuple,set,dict)):
+
+                # 处理retry条件为http状态响应码
+                if isinstance(exec_result,requests.models.Response) \
+                        and isinstance(retry_condition,(int,list,tuple,set,dict)):
                     exec_result=response_dispose(exec_result)
 
-                if  type(retry_condition) != type and type(exec_result) != type:
-                    '''处理重试条件类型与函数执行结果类型不一致任意一方是类型的字符串形式的情况'''
-                    if type(retry_condition)!=type(exec_result):
-                        if isinstance(retry_condition,str) and '<class ' in retry_condition:
-                            exec_result=str(type(exec_result))
-                            exec_result=data_util.build_str_obj(exec_result)
-                        elif isinstance(exec_result,str) and '<class ' in exec_result:
-                            retry_condition = str(type(retry_condition))
-                            retry_condition = data_util.build_str_obj(retry_condition)
+
+                # '''处理重试条件类型与函数执行结果类型不一致任意一方是类型的字符串形式的情况'''
+                if type(retry_condition)!=type(exec_result):
+                    if (not isinstance(retry_condition,py_builtin_types)) \
+                        and (not isinstance(retry_condition,type)):
+                            retry_condition=type(retry_condition)
+
+                    if (not isinstance(exec_result,py_builtin_types)) \
+                        and  (not isinstance(exec_result, type)):
+                            exec_result = type(exec_result)
+
+                    if isinstance(retry_condition, py_builtin_types) or isinstance(exec_result,py_builtin_types):
+                        retry_condition = f' {retry_condition} '
+                        exec_result = f' {exec_result} '
+
+                    retry_condition_type_module_str=data_util.class_type_module_dispose(retry_condition) if not data_util.isevaluatable_unsafety(retry_condition) else retry_condition
+                    exec_result_type_module_str=data_util.class_type_module_dispose(exec_result) if not data_util.isevaluatable_unsafety(exec_result) else exec_result
+                    if  str(retry_condition)!=retry_condition_type_module_str:
+                        retry_condition = data_util.build_str_obj(retry_condition_type_module_str)
+                    if  str(exec_result)!=exec_result_type_module_str:
+                        exec_result=data_util.build_str_obj(exec_result_type_module_str)
+
+                elif type(retry_conditon)==type(exec_result):
+                    '''如果类型相同，直接比较值'''
+                    if data_util.isevaluatable_unsafety(retry_condition) and data_util.isevaluatable_unsafety(exec_result):
+                        retry_condition = f' {retry_condition} '
+                        exec_result = f' {exec_result} '
+                    else:
+                        retry_condition= [ str(i) for i in retry_condition]
+                        exec_result= [ str(i) for i in exec_result]
+
                 else:
                     exec_result = type(exec_result) if type(exec_result) != type else exec_result
                     retry_condition = type(retry_condition) if type(
                         retry_condition) != type else retry_condition
                     retry_condition = data_util.build_str_obj(f'{retry_condition}')
                     exec_result = data_util.build_str_obj(f'{exec_result}')
+
                 return retry_condition,exec_result
 
             def judge_condition_statement_dispose(group_type:str,judge_retry_conditon_type:str,judge_condition_statement:str,
@@ -211,12 +243,12 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                 elif group_type==group_response_content:
                     if judge_retry_conditon_type == 'json_path':
                         exec_result = data_util.json_path_parse_public(json_path=retry_conditon, json_obj=exec_result)
-                        judge_condition_statement = f'{exec_result}'
+                        judge_condition_statement = f"{exec_result}"
 
                     elif judge_retry_conditon_type == 'regex':
                         exec_result_match = re.search(retry_conditon_str, str(exec_result))
                         if exec_result_match:
-                            return str(exec_result)
+                            return f"'''{exec_result_match.group()}'''"
                         else:
                             exec_result = None
                         judge_condition_statement = f'{exec_result}'
@@ -226,7 +258,7 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                             isinstance(exec_result,bytes) else len(exec_result)
                         retry_conditon_str = int(retry_conditon_str)
                         judge_condition_statement = f'{exec_result_size} >= {retry_conditon_str}'
-                return judge_condition_statement
+                return f'{judge_condition_statement}'
 
             log_content=f'func_obj:{func.__name__}'
             if module_obj:
@@ -236,13 +268,14 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
             legal_chars=('==','!=', '>=', '<=', '>', '<', 'in','not in','json_path','regex','size')
             '''检查重试判断条件是否合法'''
             exec_result=func(*args,**kwargs)
+            # print("exec_result:",exec_result)
             group_type=check_retry_conditon_judge_and_return_group(judge_retry_conditon_type=judge_retry_conditon_type,exec_result=exec_result,legal_chars=legal_chars)
             judge_condition_statement="True"
             retry_conditon_str=retry_conditon
             judge_condition_statement = judge_condition_statement_dispose(group_type=group_type,judge_retry_conditon_type=judge_retry_conditon_type,
                                           judge_condition_statement=judge_condition_statement,exec_result=exec_result,retry_conditon_str=retry_conditon_str)
 
-            # log.log_main('info',False,f'before: {judge_condition_statement}')
+            log.log_main('info',False,f'before: {judge_condition_statement}')
             try:
                 if eval("not "+judge_condition_statement):
                     exec_result=retry_func(judge_condition_statement=judge_condition_statement,retry_conditon_str=retry_conditon_str,group_type=group_type,
@@ -272,5 +305,13 @@ class demo():
         cls.num=2
         # print(cls.num)
 
+    @retry_wrapper(retry_num=3,retry_conditon='$..swagger',retry_conditon_judge='json_path')
+    def demo3(self):
+        import requests
+        # req=requests.get(url='http://www.baidu.com')
+        req=requests.get(url='http://10.4.196.168:31621/v2/api-docs')
+        return req.json()
+
 if __name__=="__main__":
-    print(demo().demo1(1, 2))
+    # print(demo().demo1(1, 2))
+    demo().demo3()
