@@ -30,7 +30,7 @@ class swaggerApiParse():
     config_file_name='allpairs_config.yaml'
     yaml_obj=operationYaml(path=config_file_path,file_path=config_file_name)
     config_data=yaml_obj.read_data()
-    excel_path=os.path.join(project_root_path,config_data['excel_path'])
+    excel_path=os.path.join(project_root_path,config_data['common_config']['file_path'])
     excel_name=f'api{"-".join(url.split("/")[3:])}.xlsx'
 
 
@@ -49,7 +49,7 @@ class swaggerApiParse():
     api_response_body_list_descs = []
     api_uri=""
     # 定义接口参数描述中各个类型的默认值
-    api_params_ref_result_properties_type_default=config_data['api_params_ref_result_properties_type_default']
+    api_params_ref_result_properties_type_default=config_data['api_config']['api_params_ref_result_properties_type_default']
 
     @classmethod
     @exec_time_wrapper(round_num=10,module_obj=__file__,class_obj=sys._getframe().f_code.co_name,is_send_email=True)
@@ -312,8 +312,8 @@ class swaggerApiParse():
     @exec_time_wrapper(round_num=10,module_obj=__file__,class_obj=sys._getframe().f_code.co_name,is_send_email=True)
     def main(cls):
         cls.get_info_info()
-        # cls.rm_old_file()
-        # cls.write_data_to_excel()
+        cls.rm_old_file()
+        cls.write_data_to_excel()
 
 
 if __name__=="__main__":
