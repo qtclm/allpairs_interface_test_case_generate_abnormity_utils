@@ -248,7 +248,8 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                     elif judge_retry_conditon_type == 'regex':
                         exec_result_match = re.search(retry_conditon_str, str(exec_result))
                         if exec_result_match:
-                            return f"'''{exec_result_match.group()}'''"
+                            exec_result=exec_result_match.group()
+                            exec_result=exec_result if data_util.isevaluatable_unsafety(exec_result) else data_util.build_str_obj(exec_result)
                         else:
                             exec_result = None
                         judge_condition_statement = f'{exec_result}'
@@ -305,12 +306,15 @@ class demo():
         cls.num=2
         # print(cls.num)
 
-    @retry_wrapper(retry_num=3,retry_conditon='$..swagger',retry_conditon_judge='json_path')
+    # @retry_wrapper(retry_num=3,retry_conditon='$..swagger',retry_conditon_judge='json_path')
+    # @retry_wrapper(retry_num=3,retry_conditon='\w+',retry_conditon_judge='regex')
+    @retry_wrapper(retry_num=3,retry_conditon=10,retry_conditon_judge='size')
     def demo3(self):
         import requests
         # req=requests.get(url='http://www.baidu.com')
         req=requests.get(url='http://10.4.196.168:31621/v2/api-docs')
         return req.json()
+        # return req.text
 
 if __name__=="__main__":
     # print(demo().demo1(1, 2))
