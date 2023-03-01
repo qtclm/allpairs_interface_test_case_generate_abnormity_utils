@@ -61,7 +61,8 @@
 
 # 生成后的效果
 ##batch_write_params_filed_detail_to_excle：
-![image](https://img2023.cnblogs.com/blog/1357367/202301/1357367-20230131152244372-1543690842.png)
+![image](https://img2023.cnblogs.com/blog/1357367/202303/1357367-20230301102630112-871862616.png)
+
 
 
 ##batch_write_cases_obj_to_excle：
