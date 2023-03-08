@@ -6,6 +6,7 @@
 @Desc            : 
 """
 import re
+import sys
 import time
 import functools
 import traceback
@@ -74,24 +75,24 @@ def email_validation_check_wapper(func):
         func(*args,**kwargs)
     return wrapper
 
-# @exec_time_wrapper(round_num=10)
-def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_sleep_time:(int,float)=1,module_obj=None,class_obj=None,is_send_email=False):
+@exec_time_wrapper(round_num=10)
+def retry_wrapper(retry_num,retry_condition,retry_condition_judge:str='==',retry_sleep_time:(int,float)=1,module_obj=None,class_obj=None,is_send_email=False):
     '''
     Args:
         retry_num: 重试次数
-        retry_conditon: 触发重试的条件
-        retry_conditon_judge: 重试条件的判断值,可以是：==、not in、in、!=、括号里面的字符只支持相同类型的比较（>= <= > < %=)
+        retry_condition: 触发重试的条件
+        retry_condition_judge: 重试条件的判断值,可以是：==、not in、in、!=、括号里面的字符只支持相同类型的比较（>= <= > < %=)
         module_obj: 模块对象
         class_obj: 类对象
         is_send_email: 是否触发发送邮件
     Returns:
     '''
-    if not isinstance(retry_conditon_judge,str):
-        raise Exception("retry_conditon_judge(重试判断条件)必须是str类型")
+    if not isinstance(retry_condition_judge,str):
+        raise Exception("retry_condition_judge(重试判断条件)必须是str类型")
     if not isinstance(retry_sleep_time,(int,float)):
         raise Exception("retry_sleep_time(重试等待时间)必须是int、float类型")
 
-    judge_retry_conditon_type=retry_conditon_judge.lower().strip()
+    judge_retry_condition_type=retry_condition_judge.lower().strip()
     group_response_status='result_status_match'
     group_response_content='result_content_match'
     py_builtin_types = (str,type(None),int, float, list, set, tuple, dict, bool, bytes, type) #定义python内置类型，用于判断
@@ -99,7 +100,7 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
     def retry_wrapper_main(func):
         @functools.wraps(func) #防止函数原信息被改变
         def wrapper(*args,**kwargs):
-            def retry_func(judge_condition_statement,retry_conditon_str,judge_retry_conditon_type,group_type):
+            def retry_func(judge_condition_statement,retry_condition_str,judge_retry_condition_type,group_type):
                 '''函数重试逻辑'''
                 func_exec_result=None
                 for i in range(retry_num):
@@ -107,8 +108,8 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                     log.log_main('info',False,f"retry前等待:{retry_sleep_time+i}s")
                     time.sleep(retry_sleep_time+i)
                     func_exec_result=func(*args,**kwargs)
-                    judge_condition_statement=judge_condition_statement_dispose(group_type=group_type,judge_retry_conditon_type=judge_retry_conditon_type,
-                                               judge_condition_statement=judge_condition_statement,exec_result=func_exec_result,retry_conditon_str=retry_conditon_str)
+                    judge_condition_statement=judge_condition_statement_dispose(group_type=group_type,judge_retry_condition_type=judge_retry_condition_type,
+                                               judge_condition_statement=judge_condition_statement,exec_result=func_exec_result,retry_condition_str=retry_condition_str)
 
                     log.log_main('info',False,f"retry_第{i+1}次:{judge_condition_statement}")
                     if eval(judge_condition_statement):
@@ -119,33 +120,33 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                 log.log_main('error', is_send_email, f' {log_content},请求重试失败,返回函数最新执行结果')
                 return func_exec_result
 
-            def check_retry_conditon_judge_and_return_group(judge_retry_conditon_type,exec_result,legal_chars):
+            def check_retry_condition_judge_and_return_group(judge_retry_condition_type,exec_result,legal_chars):
                 '''校验重试判断条件字符合法性'''
-                if not judge_retry_conditon_type in legal_chars:
-                    log_content = f'judge_retry_conditon_type只能是:{legal_chars}中的任意一个字符'
+                if not judge_retry_condition_type in legal_chars:
+                    log_content = f'judge_retry_condition_type只能是:{legal_chars}中的任意一个字符'
                     log.log_main('error', is_send_email, log_content)
                     raise Exception(log_content)
 
                 '''校验重试判断条件in not in时重试条件的数据类型是否合法'''
-                if judge_retry_conditon_type in ('in', 'not in'):
-                    if (not isinstance(retry_conditon, (list, set, tuple, dict))):
-                        log_content = f'judge_retry_conditon_type为in或者not in时,retry_conditon必须可迭代'
+                if judge_retry_condition_type in ('in', 'not in'):
+                    if (not isinstance(retry_condition, (list, set, tuple, dict))):
+                        log_content = f'judge_retry_condition_type为in或者not in时,retry_condition必须可迭代'
                         log.log_main('error', is_send_email, log_content)
                         raise Exception(log_content)
 
-                elif judge_retry_conditon_type in ('<','>','>=','<='):
-                    if ( isinstance(exec_result,py_builtin_types))  and  (type(exec_result)!=type(retry_conditon)):
-                        log_content = f'judge_retry_conditon_type为(<,>,>=,<=)时,retry_conditon与exec_result的类型必须一致'
+                elif judge_retry_condition_type in ('<','>','>=','<='):
+                    if ( isinstance(exec_result,py_builtin_types))  and  (type(exec_result)!=type(retry_condition)):
+                        log_content = f'judge_retry_condition_type为(<,>,>=,<=)时,retry_condition与exec_result的类型必须一致'
                         log.log_main('error', is_send_email, log_content)
                         raise Exception(log_content)
-                elif judge_retry_conditon_type=='size':
-                    if not isinstance(retry_conditon,(int,float)):
-                        log_content = f'judge_retry_conditon_type为size时,retry_conditon类型必须为int、float'
+                elif judge_retry_condition_type=='size':
+                    if not isinstance(retry_condition,(int,float)):
+                        log_content = f'judge_retry_condition_type为size时,retry_condition类型必须为int、float'
                         log.log_main('error', is_send_email, log_content)
                         raise Exception(log_content)
 
 
-                if judge_retry_conditon_type in ('==','!=', '>=', '<=', '>', '<', 'in','not in'):
+                if judge_retry_condition_type in ('==','!=', '>=', '<=', '>', '<', 'in','not in'):
                     return group_response_status
                 return group_response_content
 
@@ -213,7 +214,7 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                     if  str(exec_result)!=exec_result_type_module_str:
                         exec_result=data_util.build_str_obj(exec_result_type_module_str)
 
-                elif type(retry_conditon)==type(exec_result):
+                elif type(retry_condition)==type(exec_result):
                     '''如果类型相同，直接比较值'''
                     if data_util.isevaluatable_unsafety(retry_condition) and data_util.isevaluatable_unsafety(exec_result):
                         retry_condition = f' {retry_condition} '
@@ -231,22 +232,22 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
 
                 return retry_condition,exec_result
 
-            def judge_condition_statement_dispose(group_type:str,judge_retry_conditon_type:str,judge_condition_statement:str,
-                                                  exec_result,retry_conditon_str:str):
+            def judge_condition_statement_dispose(group_type:str,judge_retry_condition_type:str,judge_condition_statement:str,
+                                                  exec_result,retry_condition_str:str):
                 '''根据重试判断条件、重试判断类型，处理为最终需要的重试判断语句'''
 
                 # '''用于函数执行结果为type的情况(例如：requests.request的执行结果是requests.models.Response)'''
                 if group_type==group_response_status:
-                    retry_conditon_str, exec_result = retry_condition_and_exec_result_dispose(retry_conditon,exec_result)
-                    judge_condition_statement = f"{exec_result}{judge_retry_conditon_type}{retry_conditon_str}"
+                    retry_condition_str, exec_result = retry_condition_and_exec_result_dispose(retry_condition,exec_result)
+                    judge_condition_statement = f"{exec_result}{judge_retry_condition_type}{retry_condition_str}"
                 # '''用于函数结果是str、dict、bytes的情况（常规情况下建议使用此方式）'''
                 elif group_type==group_response_content:
-                    if judge_retry_conditon_type == 'json_path':
-                        exec_result = data_util.json_path_parse_public(json_path=retry_conditon, json_obj=exec_result)
+                    if judge_retry_condition_type == 'json_path':
+                        exec_result = data_util.json_path_parse_public(json_path=retry_condition, json_obj=exec_result)
                         judge_condition_statement = f"{exec_result}"
 
-                    elif judge_retry_conditon_type == 'regex':
-                        exec_result_match = re.search(retry_conditon_str, str(exec_result))
+                    elif judge_retry_condition_type == 'regex':
+                        exec_result_match = re.search(retry_condition_str, str(exec_result))
                         if exec_result_match:
                             exec_result=exec_result_match.group()
                             exec_result=exec_result if data_util.isevaluatable_unsafety(exec_result) else data_util.build_str_obj(exec_result)
@@ -254,11 +255,11 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
                             exec_result = None
                         judge_condition_statement = f'{exec_result}'
 
-                    elif judge_retry_conditon_type == 'size':
+                    elif judge_retry_condition_type == 'size':
                         exec_result_size = len(str(exec_result).encode('utf-8')) if not \
                             isinstance(exec_result,bytes) else len(exec_result)
-                        retry_conditon_str = int(retry_conditon_str)
-                        judge_condition_statement = f'{exec_result_size} >= {retry_conditon_str}'
+                        retry_condition_str = int(retry_condition_str)
+                        judge_condition_statement = f'{exec_result_size} >= {retry_condition_str}'
                 return f'{judge_condition_statement}'
 
             log_content=f'func_obj:{func.__name__}'
@@ -270,19 +271,18 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
             '''检查重试判断条件是否合法'''
             exec_result=func(*args,**kwargs)
             # print("exec_result:",exec_result)
-            group_type=check_retry_conditon_judge_and_return_group(judge_retry_conditon_type=judge_retry_conditon_type,exec_result=exec_result,legal_chars=legal_chars)
+            group_type=check_retry_condition_judge_and_return_group(judge_retry_condition_type=judge_retry_condition_type,exec_result=exec_result,legal_chars=legal_chars)
             judge_condition_statement="True"
-            retry_conditon_str=retry_conditon
-            judge_condition_statement = judge_condition_statement_dispose(group_type=group_type,judge_retry_conditon_type=judge_retry_conditon_type,
-                                          judge_condition_statement=judge_condition_statement,exec_result=exec_result,retry_conditon_str=retry_conditon_str)
-
-            log.log_main('info',False,f'before: {judge_condition_statement}')
+            retry_condition_str=retry_condition
+            judge_condition_statement = judge_condition_statement_dispose(group_type=group_type,judge_retry_condition_type=judge_retry_condition_type,
+                                          judge_condition_statement=judge_condition_statement,exec_result=exec_result,retry_condition_str=retry_condition_str)
             try:
                 if eval("not "+judge_condition_statement):
-                    exec_result=retry_func(judge_condition_statement=judge_condition_statement,retry_conditon_str=retry_conditon_str,group_type=group_type,
-                               judge_retry_conditon_type=judge_retry_conditon_type)
+                    log.log_main('info',False,f'before: {judge_condition_statement}')
+                    exec_result=retry_func(judge_condition_statement=judge_condition_statement,retry_condition_str=retry_condition_str,group_type=group_type,
+                               judge_retry_condition_type=judge_retry_condition_type)
             except:
-                log_content='exec_result与retry_conditon类型不一致时只能使用==、!=,退出重试并返回函数原始执行结果,具体异常信息:\n'
+                log_content='exec_result与retry_condition类型不一致时只能使用==、!=,退出重试并返回函数原始执行结果,具体异常信息:\n'
                 log.log_main('error', is_send_email, log_content+traceback.format_exc())
             finally:
                 return exec_result
@@ -292,23 +292,26 @@ def retry_wrapper(retry_num,retry_conditon,retry_conditon_judge:str='==',retry_s
 class demo():
     num=0
 
-    @retry_wrapper(retry_num=1,retry_conditon=[1,2],retry_conditon_judge='not in')
+    @retry_wrapper(retry_num=3,retry_condition=0,retry_condition_judge='==')
     # @logger_wrapper(log_level='info')
     def demo1(self,*args,**kwargs):
-        self.num += 1
-        if self.num==4:
-            return 10
-        return self.num
+
+        obj=int(time.time())
+        print(obj)
+        return obj
+        # self.num += 1
+        # if self.num==4:
+            # return 10
+        # return self.num
         # return {'data':self.num}
 
     @classmethod
     def demo2(cls):
-        cls.num=2
-        # print(cls.num)
+        print(cls.num)
 
-    # @retry_wrapper(retry_num=3,retry_conditon='$..swagger',retry_conditon_judge='json_path')
-    # @retry_wrapper(retry_num=3,retry_conditon='\w+',retry_conditon_judge='regex')
-    @retry_wrapper(retry_num=3,retry_conditon=10,retry_conditon_judge='size')
+    # @retry_wrapper(retry_num=3,retry_condition='$..swagger',retry_condition_judge='json_path')
+    # @retry_wrapper(retry_num=3,retry_condition='\w+',retry_condition_judge='regex')
+    @retry_wrapper(retry_num=3,retry_condition=10,retry_condition_judge='size')
     def demo3(self):
         import requests
         # req=requests.get(url='http://www.baidu.com')
@@ -316,6 +319,7 @@ class demo():
         return req.json()
         # return req.text
 
+
 if __name__=="__main__":
     # print(demo().demo1(1, 2))
-    demo().demo3()
+    print(666,demo().demo1())

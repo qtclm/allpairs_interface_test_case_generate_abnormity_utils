@@ -21,6 +21,7 @@ from Crypto.Cipher import AES
 from typing import Any, Union
 import importlib
 import platform
+from utils.exception_util import *
 
 
 class otherUtil(object):
@@ -162,7 +163,7 @@ class otherUtil(object):
                 return str_out.hexdigest().upper()
             return str_out.hexdigest()
         except:
-            raise Exception(f"不支持的加密方式：,目前支持的加密方式:{hashlib.algorithms_guaranteed}")
+            raise encryTypeError(f"不支持的加密方式：,目前支持的加密方式:{hashlib.algorithms_guaranteed}")
 
     @classmethod
     def encry_aes(cls, data_in, password):
@@ -275,6 +276,8 @@ class otherUtil(object):
             if is_match:
                 return path
             path = os.path.dirname(path)
+        if not path:
+            raise projectRootPathNotFoundError(msg='项目根目录未找到,请调整math_paths参数')
 
     def is_contains_chinese(self, strs):
         '''检测字符是否包含中文'''
@@ -394,7 +397,7 @@ class otherUtil(object):
     def compare_list_polishing(cls, list1: Iterable, list2: Iterable, polishing_str=None) -> (list, tuple):
         # 比较两个list的长度，长度的list用None(polishing_str)补足
         if not (isinstance(list1, Iterable) or isinstance(list2, Iterable)):
-            raise Exception("list1/list2必须是可迭代类型")
+            raise objTypeNotIterationError(msg="list1/list2必须是可迭代类型")
         l_con = len(list1)
         l_pr = len(list2)
         if l_con != l_pr:
@@ -490,12 +493,12 @@ if __name__ == "__main__":
     # dict1=[{'k1':'v1','k2':[1,2,3],'k3':{"k3-1":"v3-1","k3-2":[4,5]},'k4':[{"k4-1":"v4-1"},{"k4-2":"v4-2"}]}]
     dict1 = {'company_name': '', 'device_sn': '', 'extra_info': '', 'password': '', 'product_name': '',
              'registry_id': '', 'soft_version': '', 'username': ''}
-    # print(ot.get_project_rootpath(match_paths=['config', 'utils']))
-    dispose_str=ot.class_type_module_dispose(str_in='<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>')
-    dispose_str2=ot.class_type_module_dispose(str_in='[<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>]')
-    dispose_str3=ot.class_type_module_dispose(str_in="<class 'selenium.webdriver.remote.webelement.WebElement'>")
-    print(dispose_str)
-    print(dispose_str2)
-    print(dispose_str3)
+    print(ot.get_project_rootpath(match_paths=['common', 'config', 'utils', 'test_case', 'test_data', 'baseView']))
+    # dispose_str=ot.class_type_module_dispose(str_in='<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>')
+    # dispose_str2=ot.class_type_module_dispose(str_in='[<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>]')
+    # dispose_str3=ot.class_type_module_dispose(str_in="<class 'selenium.webdriver.remote.webelement.WebElement'>")
+    # print(dispose_str)
+    # print(dispose_str2)
+    # print(dispose_str3)
     # reuslt=ot.recursion_remove_char(str_in='<selenium.webdriver.remote.webelement.WebElement (session="f59b9fcc-0f4a-4eda-8211-156c2732bba3", element="2edc97a7-8918-4c6e-911e-3f16e432a38f")>',space_chars=('<'),remove_type=2)
     # print(reuslt)
