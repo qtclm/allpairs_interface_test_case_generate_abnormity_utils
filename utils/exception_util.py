@@ -32,6 +32,7 @@ class sheetNameNotFoundError(baseError):
 
     def __init__(self,msg):
         super(sheetNameNotFoundError,self).__init__(msg=msg)
+
 class customApiEnumTypeError(baseError):
     """
     custom_api_enum_type不匹配错误
@@ -74,3 +75,34 @@ class fileNotFoundError(baseError):
     '''文件没有找到错误'''
     def __init__(self,msg):
         super(fileNotFoundError,self).__init__(msg=msg)
+
+class baseElementTypeError(baseError):
+    '''web、ui类型错误'''
+    def __init__(self,msg):
+        super(baseElementTypeError,self).__init__(msg=msg)
+
+
+class projectRootPathNotFoundError(baseError):
+    '''项目根目录没找到错误'''
+    def __init__(self,msg):
+        super(projectRootPathNotFoundError,self).__init__(msg=msg)
+
+class encryTypeError(baseError):
+    '''加密方式不支持错误'''
+    def __init__(self,msg):
+        super(encryTypeError,self).__init__(msg=msg)
+
+class objTypeNotIterationError(baseError):
+    '''类型不可迭代错误'''
+    def __init__(self,msg):
+        super(objTypeNotIterationError,self).__init__(msg=msg)
+
+class notFoundRuningDeviceError(baseError):
+    '''没有找到正在运行的设备'''
+    def __init__(self,msg):
+        super(notFoundRuningDeviceError,self).__init__(msg=msg)
+
+class getPackageForApkFileError(baseError):
+    '''根据apk文件包名查询包名错误'''
+    def __init__(self,msg):
+        super(notFoundRuningDeviceError,self).__init__(msg=msg)
