@@ -7,11 +7,12 @@
 """
 
 import os
+import time
+import traceback
 from loguru import logger
 # 发生Error日志时，发邮件进行警报
 from utils.send_email import sendEmail
 from tabulate import tabulate
-from utils.time_util import timeUtil
 
 class operationLogging(object):
     __email = sendEmail()
@@ -19,7 +20,7 @@ class operationLogging(object):
     __email_user_list=None
     __log_path=None
     email_sub='日志告警' #邮件标题
-    time_util=timeUtil()
+    
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
             cls.__log_path = cls.log_path()
@@ -47,6 +48,57 @@ class operationLogging(object):
             return log_msg
 
     @classmethod
+    def get_timestamp(cls,is_secends=False):
+        '''
+        Args:
+            is_secends: 是否单位输出为秒
+        Returns:
+        '''
+        if is_secends:
+            current_milli_time = lambda: int(round(time.time()))
+        else:
+            current_milli_time = lambda: int(round(time.time()))*1000
+            # 输出13位时间戳,round:对浮点数进行四舍五入
+        return str(current_milli_time())
+
+    @classmethod
+    def dispose_datetime_format_string(cls,is_date=False,is_mongo_format=False):
+        date_format_string="%Y-%m-%d"
+        time_format_string = "%H:%M:%S"
+        if is_mongo_format:
+            format_string=f'{date_format_string}T{time_format_string}.000Z'
+        else:
+            if is_date:
+                return date_format_string
+            format_string = f"{date_format_string} {time_format_string}"
+        return format_string
+
+    @classmethod
+    def timestamp_to_string(cls,timeStamp=0,is_date=False):
+        # 把时间戳转成字符串形式
+        '''
+        Args:
+            timeStamp: 默认为当前时间
+            is_date: 是否输出日期
+
+        Returns:
+
+        '''
+        try:
+            if not timeStamp:
+                timeStamp=cls.get_timestamp()
+            timeStamp = int(timeStamp)
+            if len(str(timeStamp)) >= 13:
+                timeStamp /= 1000
+            if not timeStamp and timeStamp!=0:
+                timeStamp = time.time()
+            format_string = cls.dispose_datetime_format_string(is_date=is_date)
+            return time.strftime(format_string, time.localtime(timeStamp))
+        except:
+            traceback.print_exc()
+
+
+    @classmethod
     def log_main(cls,log_level,is_send_email=False,*log_msg):
         '''
         Args:
@@ -59,7 +111,7 @@ class operationLogging(object):
 
 
         log_msg=cls.json_log_msg(*log_msg)
-        date=cls.time_util.timestamp_to_string(is_date=True)
+        date=cls.timestamp_to_string(is_date=True)
         __log_name=os.path.join(cls.__log_path,f"{log_level}_{date}.log")
         logger_conf = {
             "format": '{time:YYYY-MM-DD HH:mm:ss} | {level}   |  {module}:{function}:{line}  process_id:{process} thread_id:{thread}, log_content:{message}',
