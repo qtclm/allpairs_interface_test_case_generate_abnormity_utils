@@ -504,8 +504,8 @@ class autoGenrateApiCaseAllpairspy(object):
         '''每个api的参数不同，在写入后需要调用此方法重置，避免元素被重复使用'''
         cls.params_key_list=[]
         cls.time_util.extra_cases=[]
-        cls.time_util.extra_cases_hash_lists=[]
-        cls.time_util.key_is_object_convert_list=[]
+        cls.extra_cases_hash_lists=[]
+        cls.key_is_object_convert_list=[]
         # 还原默认的枚举定义，避免数据一直递增
         cls.CONST_TYPE_ENUM=cls.CONST_TYPE_ENUM_COPY
         cls.is_array=False
