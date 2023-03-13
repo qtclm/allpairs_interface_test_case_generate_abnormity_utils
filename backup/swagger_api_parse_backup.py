@@ -1,11 +1,10 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> swagger_api_parse_backup
+@project -> file : city-test -> swagger_api_parse
 @Author          : qinmin.vendor
 @Date            : 2023/1/12 17:55
 @Desc            :
 """
-
 import copy
 import json
 import os.path
@@ -16,6 +15,8 @@ from utils.data_util import dataUtil
 #将汉字转换拼音： https://blog.csdn.net/weixin_42464956/article/details/110927073
 from xpinyin import Pinyin
 from utils.wrapper_util import exec_time_wrapper
+from collections import Counter
+from utils.operation_yaml import operationYaml
 
 
 class swaggerApiParse():
@@ -24,10 +25,13 @@ class swaggerApiParse():
     requst=requestMain()
     _data=dataUtil()
     _pinyin=Pinyin()
-
-    excel_path=os.path.join(_data.get_project_rootpath(),"test_data","interface")
+    project_root_path=_data.get_project_rootpath()
+    config_file_path=os.path.join(project_root_path,'config')
+    config_file_name='allpairs_config.yaml'
+    yaml_obj=operationYaml(path=config_file_path,file_path=config_file_name)
+    config_data=yaml_obj.read_data()
+    excel_path=os.path.join(project_root_path,config_data['common_config']['file_path'])
     excel_name=f'api{"-".join(url.split("/")[3:])}.xlsx'
-
 
 
     api_data=requst.request_main(url=url,method='get',data=None,headers=None).json()
@@ -45,11 +49,7 @@ class swaggerApiParse():
     api_response_body_list_descs = []
     api_uri=""
     # 定义接口参数描述中各个类型的默认值
-    api_params_ref_result_properties_type_default={
-        "int":0,"integer":0, "number":0,"float":0.0,"double":0.0,
-        "null":None,"object":dict(),"set":set(),"string":"","array":[],
-        "bool":False,"boolean":False,
-    }
+    api_params_ref_result_properties_type_default=config_data['api_config']['api_params_ref_result_properties_type_default']
 
     @classmethod
     @exec_time_wrapper(round_num=10,module_obj=__file__,class_obj=sys._getframe().f_code.co_name,is_send_email=True)
@@ -318,5 +318,5 @@ class swaggerApiParse():
 
 if __name__=="__main__":
     sa=swaggerApiParse()
-    sa.main()
+    # sa.main()
     # print(sa.api_params_body_list)
