@@ -9,7 +9,6 @@
 import re
 import subprocess
 import tempfile
-import sys
 import traceback
 import platform
 from utils.operation_logging import operationLogging
@@ -53,11 +52,7 @@ def get_pid_for_port(port=4723):
     port_pid_info = [i for i in command_exec_result if ':{} '.format(port) in i]  # 过滤端口中包含4723的信息，以免造成程序误判
     if port_pid_info:
         pid = re.search('\d+$', port_pid_info[0].strip())
-        if pid:
-            pid = pid.group()
-            # 执行被占用端口的pid
-            if int(pid) > 0:
-                return pid
+        return pid if pid and int(pid.group()) else None
 
 
 def kill_port_process(port=4723):
