@@ -22,10 +22,36 @@ from typing import Any, Union
 import importlib
 import platform
 from utils.exception_util import *
+from utils.__init__ import match_paths as default_match_paths
 
 
 class otherUtil(object):
     system_type = platform.system()
+
+    @staticmethod
+    def get_project_rootpath(match_paths: Union[list, set, tuple] = None):
+        """
+        获取项目根目录。此函数的能力体现在，不论当前module被import到任何位置，都可以正确获取项目根目录
+        :return:
+        """
+        path = os.getcwd()
+        if sys.platform == 'win32':
+            root_path = path[:path.find(':\\') + 2]
+        else:
+            root_path = os.path.altsep
+        while path != root_path:
+            # PyCharm项目中，'.idea'是必然存在的，且名称唯一
+            # match_paths=['.idea','utils','handle','config']
+            if not match_paths:
+                match_paths = default_match_paths
+            is_match = all([i in os.listdir(path) for i in match_paths])
+            if is_match:
+                return path
+            path = os.path.dirname(path)
+        if not path:
+            raise projectRootPathNotFoundError(msg='项目根目录未找到,请调整math_paths参数')
+
+    project_rootpath=get_project_rootpath()
 
     @classmethod
     def recursion_remove_char(cls, str_in: object, space_chars: object, remove_type: object = 2) -> object:
@@ -217,24 +243,28 @@ class otherUtil(object):
 
     def pyobject_to_json_str(self, str_in, src_value_list=[], target_values_list=[]):
         '''将py对象转换为json_str'''
+        if not isinstance(str_in,str):
+            return str_in
         src_value_list = ['True', 'False', 'None', '"'] if not src_value_list else src_value_list
         target_values_list = ['true', 'false', 'null', "'"] if not target_values_list else target_values_list
         for index, src_value in enumerate(src_value_list):
             str_in = str_in.replace(src_value, target_values_list[index])
         return str_in
 
-    def json_str_to_pyobject(self, str_in):
+    def json_str_to_pyobject(self, str_in,is_eval=True):
         # 将json_str中的true/false/null，转换为python对象
         src_value_list = [' ', 'true', 'false', 'null', '<NULL>']
         target_values_list = ['', 'True', 'False', 'None', 'None']
         str_in = self.pyobject_to_json_str(str_in=str_in, src_value_list=src_value_list,
                                            target_values_list=target_values_list)
-        # 处理多个引号的字符
-        json_pyobj = eval(str_in) if self.isevaluatable(str_in) else str_in
-        if isinstance(json_pyobj, dict):
-            for i in json_pyobj:
-                json_pyobj[i] = eval(json_pyobj[i]) if self.isevaluatable(json_pyobj[i]) else json_pyobj[i]
-        return json_pyobj
+        if is_eval:
+            # 处理多个引号的字符
+            json_pyobj = eval(str_in) if self.isevaluatable(str_in) else str_in
+            if isinstance(json_pyobj, dict):
+                for i in json_pyobj:
+                    json_pyobj[i] = eval(json_pyobj[i]) if self.isevaluatable(json_pyobj[i]) else json_pyobj[i]
+            return json_pyobj
+        return str_in
 
     def check_filename(self, file_name, ignore_chars: (list, tuple, set) = [],
                        priority_matching_chars: (list, tuple, set) = []):
@@ -255,29 +285,6 @@ class otherUtil(object):
         for i in chars:
             file_name = file_name.replace(i, '')
         return file_name
-
-    @classmethod
-    def get_project_rootpath(cls, match_paths: Union[list, set, tuple] = None):
-        """
-        获取项目根目录。此函数的能力体现在，不论当前module被import到任何位置，都可以正确获取项目根目录
-        :return:
-        """
-        path = os.getcwd()
-        if sys.platform == 'win32':
-            root_path = path[:path.find(':\\') + 2]
-        else:
-            root_path = os.path.altsep
-        while path != root_path:
-            # PyCharm项目中，'.idea'是必然存在的，且名称唯一
-            # match_paths=['.idea','utils','handle','config']
-            if not match_paths:
-                match_paths = ['.git', 'utils', 'config']
-            is_match = all([i in os.listdir(path) for i in match_paths])
-            if is_match:
-                return path
-            path = os.path.dirname(path)
-        if not path:
-            raise projectRootPathNotFoundError(msg='项目根目录未找到,请调整math_paths参数')
 
     def is_contains_chinese(self, strs):
         '''检测字符是否包含中文'''

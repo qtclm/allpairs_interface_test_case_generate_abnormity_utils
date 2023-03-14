@@ -22,19 +22,19 @@ from utils.operation_yaml import operationYaml
 class swaggerApiParse():
     url='http://10.4.196.168:31621/v2/api-docs'
     # url='https://10.165.61.58:30443/matrix/v2x-device/v1/v2/api-docs'
-    requst=requestMain()
+    request=requestMain()
     _data=dataUtil()
     _pinyin=Pinyin()
-    project_root_path=_data.get_project_rootpath()
+    project_root_path=_data.project_rootpath
     config_file_path=os.path.join(project_root_path,'config')
     config_file_name='allpairs_config.yaml'
-    yaml_obj=operationYaml(path=config_file_path,file_path=config_file_name)
+    yaml_obj=operationYaml(file_path=config_file_path,file_name=config_file_name)
     config_data=yaml_obj.read_data()
     excel_path=os.path.join(project_root_path,config_data['common_config']['file_path'])
     excel_name=f'api{"-".join(url.split("/")[3:])}.xlsx'
 
 
-    api_data=requst.request_main(url=url,method='get',data=None,headers=None).json()
+    api_data=request.request_main(url=url,method='get',data=None,headers=None).json()
     api = api_data['paths']  # 取swagger文件内容中的path，文件中path是键名
     api_uri_list = []  # 创建接口地址空列表
     api_method_list = []  # 创建请求方式空列表
@@ -294,7 +294,7 @@ class swaggerApiParse():
     @classmethod
     def write_data_to_excel(cls):
         '''将api信息写入到excel'''
-        op_ex = operationExcel(excel_path=cls.excel_path, excel_name=cls.excel_name,is_read=False,data_only=True)
+        op_ex = operationExcel(file_path=cls.excel_path, file_name=cls.excel_name,opeartion_type='read_write',data_only=False)
         # 写入excel首行
         first_line=['case','uri','method','params_path','params_path_desc','params_body','params_body_desc','response_body','response_body_desc','skip']
         op_ex.write_values(first_line)
@@ -318,5 +318,5 @@ class swaggerApiParse():
 
 if __name__=="__main__":
     sa=swaggerApiParse()
-    # sa.main()
+    sa.main()
     # print(sa.api_params_body_list)

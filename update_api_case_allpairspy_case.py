@@ -8,18 +8,18 @@
 import json
 import math
 import sys
-from other_scripts.auto_generate_api_case_allpairspy import autoGenrateApiCaseAllpairspy
 from utils.operation_datas import operationExcel
 from utils.wrapper_util import exec_time_wrapper
 from xpinyin import Pinyin
 from utils.operation_datas import operationExcelXlsxwriter
+from auto_generate_api_case_allpairspy import autoGenerateApiCaseAllpairspy
 
-class update_api_case_allpairspy_case(autoGenrateApiCaseAllpairspy):
+class update_api_case_allpairspy_case(autoGenerateApiCaseAllpairspy):
 
-    excel_name = autoGenrateApiCaseAllpairspy.excel_name_params_obj
-    excel_obj=operationExcel(excel_path=autoGenrateApiCaseAllpairspy.excel_path,excel_name=excel_name)
+    excel_name = autoGenerateApiCaseAllpairspy.excel_name_params_obj_file_name
+    excel_obj=operationExcel(file_path=autoGenerateApiCaseAllpairspy.file_path,file_name=excel_name)
     excel_name_update=excel_name.split('.xlsx')[0]+'-update.xlsx'
-    excel_obj_update=operationExcelXlsxwriter(excel_path=autoGenrateApiCaseAllpairspy.excel_path,excel_name=excel_name_update)
+    excel_obj_update=operationExcelXlsxwriter(file_path=autoGenerateApiCaseAllpairspy.file_path,file_name=excel_name_update)
 
     @classmethod
     @exec_time_wrapper(round_num=10, module_obj=__file__, class_obj=sys._getframe().f_code.co_name, is_send_email=False)
@@ -28,7 +28,7 @@ class update_api_case_allpairspy_case(autoGenrateApiCaseAllpairspy):
         sheet_names = cls.excel_obj.get_all_sheet_name()
         for sheet_name in sheet_names:
             cls.excel_obj.data = cls.excel_obj.get_data_for_sheet_name(sheet_name=sheet_name)
-            api_response_code_dict = cls.update_api_response_code(sheeet_name=sheet_name)
+            api_response_code_dict = cls.update_case_expected_api_response_code(sheeet_name=sheet_name)
             lines = cls.excel_obj.get_lines()
             for line_num in range(lines + 1):
                 values = cls.excel_obj.get_row_values(line_num + 1)

@@ -6,11 +6,11 @@
 import traceback
 import pymongo
 import sys
-from utils.operation_logging import operationLogging
+from utils.exception_util import *
 
 class operationMongo(object):
 
-	log=operationLogging()
+	log=operationLogging('mongodb_log')
 	def __init__(self,user=None,password=None,host=None,port=None,db=None):
 		try:
 			self.connect_client = pymongo.MongoClient(host=host, port=port)
@@ -18,9 +18,8 @@ class operationMongo(object):
 			self.mydb = self.connect_client[db]  # 先连接系统默认数据库admin
 			# #下面一条更改是关键，我竟然尝试成功了，不知道为啥，先记录下踩的坑吧
 			self.mydb.authenticate(user, password, mechanism='SCRAM-SHA-1')  # 让admin数据库去认证密码登录，好吧，既然成功了，
-		except BaseException as e:
-			self.log.log_main('error',True,traceback.format_exc())
-			raise BaseException(f"数据库连接失败，原因：{traceback.format_exc()}")
+		except :
+			raise databaseConnectError(msg=f'mongodb数据库连接失败,具体原因{traceback.format_exc()}')
 
 	def insert_collection(self,collection_name,value):#单个插入
 		if isinstance(collection_name,str) and isinstance(value,dict):
@@ -28,7 +27,7 @@ class operationMongo(object):
 			mycol_id=mycol.insert_one(value)
 			return mycol_id.inserted_id #返回insert_id，即插入文档的id值
 		else:
-			self.log.log_main('warning',True,"{},{}:类型错误,类型必须为string与dict".format(collection_name,value))
+			self.log.log_main('warning',False,"{},{}:类型错误,类型必须为string与dict".format(collection_name,value))
 			return "{},{}:类型错误,类型必须为string与dict".format(collection_name,value)
 
 	def insert_batch_collection(self,collection_name,value_list):#批量插入
@@ -37,7 +36,7 @@ class operationMongo(object):
 			mycol_id=mycol.insert_many(value_list)
 			return mycol_id.inserted_ids #返回insert_id集合，即插入文档的id值
 		else:
-			self.log.log_main('warning',True,"{},{}:类型错误,类型必须为string和list".format(collection_name,value_list))
+			self.log.log_main('warning',False,"{},{}:类型错误,类型必须为string和list".format(collection_name,value_list))
 			return "{},{}:类型错误,类型必须为string和list".format(collection_name,value_list)
 
 	def select_one_collection(self,collection_name,search_col=None):#获取一条数据
@@ -51,10 +50,10 @@ class operationMongo(object):
 				return result
 			except TypeError as e:
 				# print('查询条件只能是dict类型,具体错误信息：{}'.format(e))
-				self.log.log_main('warning', True, '查询条件只能是dict类型,具体错误信息：{}'.format(traceback.format_exc()))
+				self.log.log_main('warning', False, '查询条件只能是dict类型,具体错误信息：{}'.format(traceback.format_exc()))
 				return None
 		else:
-			self.log.log_main('warning',True,"{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning',False,"{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def select_all_collection(self,collection_name,search_col={},skip_col={},limit_num=sys.maxsize,sort_col=[()]):
@@ -81,10 +80,10 @@ class operationMongo(object):
 				result_all=[i for i in results]#将获取到的数据添加至list
 				return result_all
 			except TypeError:
-				self.log.log_main('warning', True, '查询条件只能是dict类型,具体错误信息：{}'.format(traceback.format_exc()))
+				self.log.log_main('warning', False, '查询条件只能是dict类型,具体错误信息：{}'.format(traceback.format_exc()))
 				return None
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def update_one_collecton(self,collection_name,search_col,update_col):
@@ -97,11 +96,11 @@ class operationMongo(object):
 				relust=my_col.update_one(search_col,update_col)
 				return relust
 			except TypeError :
-				self.log.log_main('warning', True, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
+				self.log.log_main('warning', False, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
 				# print('查询条件与需要修改的字段只能是dict类型')
 				return None
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def update_batch_collecton(self,collection_name,search_col,update_col):
@@ -115,10 +114,10 @@ class operationMongo(object):
 			except TypeError:
 				# print(e)
 				# print('查询条件与需要修改的字段只能是dict类型')
-				self.log.log_main('warning', True, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
+				self.log.log_main('warning', False, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
 				return None
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def delete_one_collection(self,collection_name,search_col):#删除集合中的文档
@@ -129,10 +128,10 @@ class operationMongo(object):
 				return relust
 			except TypeError as e:
 				# print('查询条件与需要修改的字段只能是dict类型')
-				self.log.log_main('warning', True, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
+				self.log.log_main('warning', False, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
 				return None
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def delete_batch_collection(self,collection_name,search_col):#删除集合中的多个文档
@@ -145,10 +144,10 @@ class operationMongo(object):
 				return relust
 			except TypeError as e:
 				# print('查询条件与需要修改的字段只能是dict类型')
-				self.log.log_main('warning', True, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
+				self.log.log_main('warning', False, "查询条件与需要修改的字段只能是dict类型:{}".format(collection_name))
 				return None
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def drop_collection(self,collection_name):
@@ -158,7 +157,7 @@ class operationMongo(object):
 			result=my_col.drop()
 			return result
 		else:
-			self.log.log_main('warning', True, "{}:类型错误,类型必须为string".format(collection_name))
+			self.log.log_main('warning', False, "{}:类型错误,类型必须为string".format(collection_name))
 			return "{}:类型错误,类型必须为string".format(collection_name)
 
 	def get_connections(self):#获取所有的connections
@@ -166,11 +165,11 @@ class operationMongo(object):
 
 	def close_connect(self):
 		self.connect_client.close()
-		self.log.log_main('info', False, None, "mongo连接已关闭")
+		self.log.log_main('info', False, "mongo连接已关闭")
 		return 'mongo连接已关闭'
 
 
 
 if __name__=="__main__":
-	om=OperationMongo(user='admin',password='123456',host='47.108.160.76',port=27017,db='admin')
+	om=operationMongo(user='admin',password='123456',host='47.108.160.76',port=27017,db='admin')
 	om.select_one_collection('TestDataInfo')

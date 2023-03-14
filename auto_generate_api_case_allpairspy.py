@@ -30,11 +30,11 @@ from utils.operation_logging import operationLogging
 
 class autoGenerateApiCaseAllpairspy(object):
     time_util = timeUtil()
-    log = operationLogging()
+    log = operationLogging('auto_generate_api_case_allpairspy_log')
     project_root_path = time_util.get_project_rootpath(match_paths=['config', 'utils'])
     config_file_path = os.path.join(project_root_path, 'config')
     config_file_name = 'allpairs_config.yaml'
-    yaml_obj = operationYaml(path=config_file_path, file_path=config_file_name)
+    yaml_obj = operationYaml(file_path=config_file_path, file_name=config_file_name)
     config_data = yaml_obj.read_data(out_dict=True)
 
     '''初始化excel相关配置'''

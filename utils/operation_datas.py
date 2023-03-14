@@ -19,7 +19,7 @@ class operationExcel(object):
         self.file_name=file_name
         self.sheet_name=sheet_name
         if self.file_path is None:
-            self.file_path = os.path.join(otherUtil.get_project_rootpath(match_paths=['config','utils']), '../config')
+            self.file_path =  os.path.join(otherUtil.project_rootpath,'config')
         if self.file_name is None:
             self.file_name='DataCase_ALL.xlsx'
         self.file_address = os.path.join(self.file_path, self.file_name)

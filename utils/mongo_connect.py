@@ -9,8 +9,8 @@ from utils.mongo_public import operationMongo
 from utils.operation_yaml import operationYaml
 
 class Config(object):
-    def __init__(self):
-        config=operationYaml().read_data()
+    def __init__(self,file_path='config',file_name='config.yaml'):
+        config=operationYaml(file_path=file_path,file_name=file_name).read_data()
         self.dataBaseConfig=config['config']
 
 class mongo_tencentcloud(operationMongo,Config):
@@ -21,7 +21,7 @@ class mongo_tencentcloud(operationMongo,Config):
         password=self.dataBaseConfig['tencent_cloud_mongodb']['password']
         port=self.dataBaseConfig['tencent_cloud_mongodb']['port']
         db='creeper_test'
-        super().__init__(host=host,user=user,password=password,port=port,db=db)
+        super(mongo_tencentcloud,self).__init__(host=host,user=user,password=password,port=port,db=db)
         # print('链接成功')
 
 

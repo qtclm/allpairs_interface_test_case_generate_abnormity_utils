@@ -16,7 +16,7 @@ from utils.data_util import dataUtil
 
 # 注意事项：装饰器不能装饰classmethod
 
-log=operationLogging()
+log=operationLogging('wrapper_log')
 data_util=dataUtil()
 
 

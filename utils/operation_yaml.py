@@ -9,14 +9,17 @@
 import collections
 import json
 import os
+import traceback
 from ruamel import yaml
+from utils.other_util import otherUtil
+from utils.operation_logging import operationLogging
 
 
 class operationYaml(object):
-
-    def __init__(self, path,file_path):
-        yaml_path = os.path.join(os.path.dirname(__file__),path)
-        self.file_path = os.path.join(yaml_path,file_path)
+    log=operationLogging('yaml_log')
+    def __init__(self, file_path,file_name):
+        yaml_path = os.path.join(otherUtil.project_rootpath,file_path)
+        self.file_path = os.path.join(yaml_path,file_name)
 
     # 获取所有数据
     def read_data(self, mode='r',out_dict=False):
@@ -27,8 +30,8 @@ class operationYaml(object):
                 if out_dict:
                     yaml_info=json.loads(json.dumps(yaml_info))
                 return yaml_info
-        except Exception as error:
-            print(f'读取yaml失败，错误如下：{error}')
+        except :
+            self.log.log_main('error',False,f'读取yaml文件失败,具体错误\n:{traceback.format_exc()}')
             return False
 
 
@@ -85,7 +88,7 @@ class operationYaml(object):
         old_data = self.read_data()
         new_data = data
         if new_data == {} or new_data == [] or new_data == '':
-            print('写入数据为空，跳过写入')
+            self.log.log_main('info',False,'写入数据为空，跳过写入')
             return None
         if old_data and isinstance(old_data, dict):
             # collections.ChainMap - -将多个映射合并为单个映射
@@ -104,13 +107,12 @@ class operationYaml(object):
                 # yaml.dump(road_data, f, Dumper=yaml.RoundTripDumper)
                 yaml.round_trip_dump(data, f,default_style=False)
                 return True
-        except Exception as error:
-            print(f'yaml文件写入失败，错误如下：\n{error}')
+        except:
+            self.log.log_main('error',False,f'yaml文件写入失败，错误如下：\n{traceback.format_exc()}')
+
             return False
 
 
 
 if __name__=="__main__":
-    ym=operationYaml(path='../config/demo',file_path='config.yaml')
-    data=ym.read_data(out_dict=True)
-    print(data)
+    ym=operationYaml(file_path='config',file_name='config.yaml')
