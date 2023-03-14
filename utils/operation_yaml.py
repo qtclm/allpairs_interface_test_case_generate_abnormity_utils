@@ -16,24 +16,24 @@ from utils.operation_logging import operationLogging
 
 
 class operationYaml(object):
-    log=operationLogging('yaml_log')
-    def __init__(self, file_path,file_name):
-        yaml_path = os.path.join(otherUtil.project_rootpath,file_path)
-        self.file_path = os.path.join(yaml_path,file_name)
+    log = operationLogging('yaml_log')
+
+    def __init__(self, file_path, file_name):
+        yaml_path = os.path.join(otherUtil.project_rootpath, file_path)
+        self.file_path = os.path.join(yaml_path, file_name)
 
     # 获取所有数据
-    def read_data(self, mode='r',out_dict=False):
+    def read_data(self, mode='r', out_dict=False):
         """ 读取yaml里面里面的数据"""
         try:
             with open(self.file_path, mode, encoding='utf-8') as f:
-                yaml_info = yaml.round_trip_load(f) #, Loader=yaml.Loader
+                yaml_info = yaml.round_trip_load(f)  # , Loader=yaml.Loader
                 if out_dict:
-                    yaml_info=json.loads(json.dumps(yaml_info))
+                    yaml_info = json.loads(json.dumps(yaml_info))
                 return yaml_info
-        except :
-            self.log.log_main('error',False,f'读取yaml文件失败,具体错误\n:{traceback.format_exc()}')
+        except:
+            self.log.log_main('error', False, f'读取yaml文件失败,具体错误\n:{traceback.format_exc()}')
             return False
-
 
     # 通过key递归获取对应的值
     def readDataForKey(self, key=None, yaml_data=None):
@@ -88,7 +88,7 @@ class operationYaml(object):
         old_data = self.read_data()
         new_data = data
         if new_data == {} or new_data == [] or new_data == '':
-            self.log.log_main('info',False,'写入数据为空，跳过写入')
+            self.log.log_main('info', False, '写入数据为空，跳过写入')
             return None
         if old_data and isinstance(old_data, dict):
             # collections.ChainMap - -将多个映射合并为单个映射
@@ -105,14 +105,13 @@ class operationYaml(object):
         try:
             with open(self.file_path, mode, encoding="utf-8") as f:
                 # yaml.dump(road_data, f, Dumper=yaml.RoundTripDumper)
-                yaml.round_trip_dump(data, f,default_style=False)
+                yaml.round_trip_dump(data, f, default_style=False)
                 return True
         except:
-            self.log.log_main('error',False,f'yaml文件写入失败，错误如下：\n{traceback.format_exc()}')
+            self.log.log_main('error', False, f'yaml文件写入失败，错误如下：\n{traceback.format_exc()}')
 
             return False
 
 
-
-if __name__=="__main__":
-    ym=operationYaml(file_path='config',file_name='config.yaml')
+if __name__ == "__main__":
+    ym = operationYaml(file_path='config', file_name='config.yaml')
