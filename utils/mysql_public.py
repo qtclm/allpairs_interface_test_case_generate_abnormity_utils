@@ -8,8 +8,8 @@
 
 import pymysql
 from threading import RLock
-from utils.operation_logging import operationLogging
 import traceback
+from utils.exception_util import *
 #Lock用于增加互斥锁，防止多线程执行sql报错
 # lock和rlock（递归锁）的区别:
     # 这两种琐的主要区别是：RLock允许在同一线程中被多次acquire。而Lock却不允许这种情况。注意：如果使用RLock，那么acquire和release必须成对出现，
@@ -26,16 +26,15 @@ import traceback
 
 
 class operationMysql(object):
-    log=operationLogging()
+    log=operationLogging('mysql_log')
     def __init__(self,*args, **kwargs):
         try:
             self.Mysql_operation=pymysql.connect(*args,**kwargs) #crm数据库配置
             self.cursor = self.Mysql_operation.cursor() #创建操作游标
             self.lock = RLock()#使用递归锁，防止同一线程内多次acquire造成死锁
-        except Exception as error:
-            self.log.log_main('error',True,f"数据库连接失败，原因为{traceback.format_exc()}")
-            # print("数据库连接失败，原因为%s"%(error))
-            
+        except:
+            raise databaseConnectError(msg=f'mysql数据连接失败，原因为:{traceback.format_exc()}')
+
     def sql_operation(self,sql_operation,limitOne:bool=True,logOut:bool=False):
         '''
 
@@ -66,8 +65,8 @@ class operationMysql(object):
                 try:
                     self.Mysql_operation.rollback()#遇到异常执行数据回滚
                     temp='执行数据回滚'
-                    self.log.log_main('error',True,None,"sql执行时发生了异常，异常原因:{}".format(traceback.format_exc()))
-                    self.log.log_main('error',True,None,temp)
+                    self.log.log_main('error',True,"sql执行时发生了异常，异常原因:{}".format(traceback.format_exc()))
+                    self.log.log_main('error',True,temp)
                 except AttributeError as error:
                     self.log.log_main('error',True,f"{traceback.format_exc()}")
         else:
@@ -102,7 +101,7 @@ class operationMysql(object):
     def close_db(self):
         try:
             self.Mysql_operation.close() #关闭数据库连接
-            self.log.log_main('info',False,None,"关闭数据库链接")
+            self.log.log_main('info',False,"关闭数据库链接")
         except Exception:
             self.log.log_main('error',True,f"关闭数据库链接失败：{traceback.format_exc()}")
             # print("关闭数据库连接失败，原因为%s"%(error))
@@ -121,10 +120,10 @@ class operationMysql(object):
                 try:
                     self.Mysql_operation.rollback()#遇到异常执行数据回滚
                     temp='执行数据回滚'
-                    self.log.log_main('error',True,None,"sql执行时发生了异常，异常原因:{}".format(traceback.format_exc()))
-                    self.log.log_main('error',True,None,temp)
+                    self.log.log_main('error',False,"sql执行时发生了异常，异常原因:{}".format(traceback.format_exc()))
+                    self.log.log_main('error',False,temp)
                 except AttributeError as error:
-                    self.log.log_main('error',True,f"{traceback.format_exc()}")
+                    self.log.log_main('error',False,f"{traceback.format_exc()}")
 
         else:
             # print('sql或list无效,请检查后在执行')
@@ -140,6 +139,6 @@ if __name__=="__main__":
                                "cursorclass": pymysql.cursors.DictCursor}
     sql='''select *from nc_course'''
     tencent_cloud_mysql_conf['db']='test_datas'
-    my=mysqlOperation(**tencent_cloud_mysql_conf)
+    my=operationMysql(**tencent_cloud_mysql_conf)
     data=my.sql_operation_limit(sql)
     print(data)

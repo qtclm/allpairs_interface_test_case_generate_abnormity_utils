@@ -7,32 +7,57 @@
 """
 
 import os
+import sys
 import time
 import traceback
+from typing import Union
 from loguru import logger
 # 发生Error日志时，发邮件进行警报
 from utils.send_email import sendEmail
 from tabulate import tabulate
+from utils.__init__ import match_paths as default_math_paths
 
 class operationLogging(object):
     __email = sendEmail()
-    __instance=None
     __email_user_list=None
-    __log_path=None
-    email_sub='日志告警' #邮件标题
-    
-    def __new__(cls, *args, **kwargs):
-        if not cls.__instance:
-            cls.__log_path = cls.log_path()
-            cls.__instance=object.__new__(cls)
-        return cls.__instance
+    email_sub = '日志告警'  # 邮件标题
 
-    @classmethod
-    def log_path(self):
+    def __init__(self,*log_path):
+        self.__log_path=self.log_path(*log_path)
+
+
+    @staticmethod
+    def get_project_rootpath(match_paths: Union[list, set, tuple] = None):
+        """
+        获取项目根目录。此函数的能力体现在，不论当前module被import到任何位置，都可以正确获取项目根目录
+        :return:
+        """
+        path = os.getcwd()
+        if sys.platform == 'win32':
+            root_path = path[:path.find(':\\') + 2]
+        else:
+            root_path = os.path.altsep
+        while path != root_path:
+            # PyCharm项目中，'.idea'是必然存在的，且名称唯一
+            # match_paths=['.idea','utils','handle','config']
+            if not match_paths:
+                match_paths = default_math_paths
+            is_match = all([i in os.listdir(path) for i in match_paths])
+            if is_match:
+                return path
+            path = os.path.dirname(path)
+        if not path:
+            raise Exception('项目根目录未找到,请调整math_paths参数')
+
+    project_dir=get_project_rootpath()
+
+
+    def log_path(self,*log_path):
         """Get log directory"""
-        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "log")
+        path = os.path.join(self.project_dir, "log")
+        path=os.path.join(path,*log_path)
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.makedirs(path)
         return path
 
 
@@ -98,8 +123,7 @@ class operationLogging(object):
             traceback.print_exc()
 
 
-    @classmethod
-    def log_main(cls,log_level,is_send_email=False,*log_msg):
+    def log_main(self,log_level,is_send_email=False,*log_msg):
         '''
         Args:
             log_level:
@@ -110,9 +134,9 @@ class operationLogging(object):
         # logger.remove(handler_id=None)
 
 
-        log_msg=cls.json_log_msg(*log_msg)
-        date=cls.timestamp_to_string(is_date=True)
-        __log_name=os.path.join(cls.__log_path,f"{log_level}_{date}.log")
+        log_msg=self.json_log_msg(*log_msg)
+        date=self.timestamp_to_string(is_date=True)
+        __log_name=os.path.join(self.__log_path,f"{log_level}_{date}.log")
         logger_conf = {
             "format": '{time:YYYY-MM-DD HH:mm:ss} | {level}   |  {module}:{function}:{line}  process_id:{process} thread_id:{thread}, log_content:{message}',
             # 配置按大小滚动:rotation,  压缩日志:compression, 多进程安全:enqueue=True
@@ -128,13 +152,12 @@ class operationLogging(object):
             log_level='info'
         exec(f"logger.{log_level}(log_msg)")
         if is_send_email:
-            cls.__email.send_msg(sub=cls.email_sub,msg=log_msg,user_list=cls.__email_user_list)
+            self.__email.send_msg(sub=self.email_sub,msg=log_msg,user_list=self.__email_user_list)
         # 移除handel，避免重复打印
         logger.remove(log_handel)
 
 
-    @classmethod
-    def log_main_table(cls,log_level,is_send_email=False,tabel_header=[],tabel_data=[],tablefmt='grid'):
+    def log_main_table(self,log_level,is_send_email=False,tabel_header=[],tabel_data=[],tablefmt='grid'):
         '''打印表格形式的日志,配合tabulate使用:
         https://blog.csdn.net/qq_43901693/article/details/104920856
          tablefmt支持： 'plain', 'simple', 'grid', 'pipe', 'orgtbl', 'rst', 'mediawiki',
@@ -148,13 +171,14 @@ class operationLogging(object):
         tabel_data=convert_to_container(tabel_data)
         log_msg=tabulate(tabular_data=tabel_data,headers=tabel_header,tablefmt=tablefmt)
         log_msg=f'\ntabel_format:{tablefmt}\n{log_msg}'
-        cls.log_main(log_level,is_send_email,log_msg)
+        self.log_main(log_level,is_send_email,log_msg)
 
 
 
 if __name__=="__main__":
     op_log=operationLogging()
+    op_log.log_path('test','app')
     # op_log.log_main('info',True,'1','2','3',(1,2,34))
     # op_log.log_main('debug',True,'1','2','3',(1,2,34))
-    op_log.log_main_table(log_level='info',is_send_email=False,tabel_header=['name','age'],tabel_data=[('xiaoming',12),('xiaobai',13)],tablefmt='html')
+    # op_log.log_main_table(log_level='info',is_send_email=False,tabel_header=['name','age'],tabel_data=[('xiaoming',12),('xiaobai',13)],tablefmt='html')
 

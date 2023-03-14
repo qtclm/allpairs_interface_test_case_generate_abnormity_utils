@@ -8,27 +8,22 @@
 
 import traceback
 import redis
-from utils.operation_logging import operationLogging
+from utils.exception_util import *
 
 class operationRedis(object):
     '''
     redis操作
     '''''
-    log=operationLogging()
+    log=operationLogging('redis_log')
     def __init__(self,*args, **kwargs):
         try:
-            try:
-                self.pool = redis.ConnectionPool(*args,**kwargs)
-            except:
-                self.log.log_main('error', True, None, f"数据库连接失败，原因为:{traceback.format_exc()}")
+            self.pool = redis.ConnectionPool(*args,**kwargs)
             self.r = redis.Redis(connection_pool=self.pool)
             self.pipeline = self.r.pipeline(transaction=True)
         except Exception :
-            self.log.log_main('error',True,None,f"数据库连接失败，原因为:{traceback.format_exc()}")
-            # print("数据库连接失败，原因为%s"%(error))
+            raise databaseConnectError(f'redis数据库连接失败,原因为:\n{traceback.format_exc()}')
     # String操作
     # 在Redis中设置值，默认不存在则创建，存在则修改
-
     def string_set(self, key, valuve):
         # 参数：set(name, value, ex=None, px=None, nx=False, xx=False)
         #      ex，过期时间（秒）

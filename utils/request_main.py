@@ -9,17 +9,17 @@
 import json
 import traceback
 import requests
-from utils.operation_logging import operationLogging
 from utils.curl_generate_util import to_curl
 from utils.other_util import otherUtil
+from utils.exception_util import *
 
 
 class requestMain(object):
     requests.urllib3.disable_warnings() #禁用所有警告
-    log=operationLogging()
+    log=operationLogging('requests_log')
     other_util=otherUtil()
-    is_sission_request=True
-    _request_obj = requests.session() if is_sission_request else requests
+    is_session_request=True
+    _request_obj = requests.session() if is_session_request else requests
     request = None;__response = None;url = "";method = None
     body = {};headers = {};cookies = None;files = None
 
@@ -50,10 +50,10 @@ class requestMain(object):
             request_exec_code_obj=f"self._request_obj.{method}(url={url}, params={params}, json={data}, headers={headers}, files={files}, verify=False,cookies={cookies})"
             res = eval(request_exec_code_obj)
         except:
-            traceback.print_exc()
-            self.log.log_main('error', False, f"get请求发生错误:{traceback.format_exc()}")
+            raise requestError(msg=f'请求发生错误,具体原因：\n{traceback.format_exc()}')
         finally:
             self.request = res
+            # self.request_log_out(is_log_out=is_log_out)
             return res
 
     # @retry_wrapper(retry_num=3,retry_conditon='ffs',retry_conditon_judge='size')
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     # url='https://www.baidu.com'
     url='http://10.4.196.168:31621/v2/api-docs'
     # print(r._request_obj)
-    res=r.request_main(url=url, method='get', data=None, params=None, headers=None, is_log_out=False)
+    res=r.request_main(url=url, method='get', data=None, params=None, headers=None, is_log_out=True)
     print(res)
     # res=r.run_main(host=url,uri='', method='get', body=None, params=None, headers=None, is_log_out=False,res_format='json')
     # res=r.run_main(host=url,uri='', method='get', body=None, params=None, headers=None, is_log_out=False,res_format='text')

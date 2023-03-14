@@ -11,8 +11,8 @@ from utils.redis_public import operationRedis
 from utils.operation_yaml import operationYaml
 
 class Config(object):
-    def __init__(self):
-        config=operationYaml().read_data()
+    def __init__(self,file_path='config',file_name='config.yaml'):
+        config=operationYaml(file_path=file_path,file_name=file_name).read_data()
         self.dataBaseConfig=config['config']
 
 class redis_qa(operationRedis,Config):
@@ -20,7 +20,7 @@ class redis_qa(operationRedis,Config):
         Config.__init__(self)
         tencent_cloud_redis=self.dataBaseConfig['redis_conf']
         tencent_cloud_redis['db'] = 0
-        super().__init__(**tencent_cloud_redis)
+        super(redis_qa,self).__init__(**tencent_cloud_redis)
 
 
 

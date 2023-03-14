@@ -14,7 +14,7 @@ from utils.time_util import timeUtil
 
 
 class dataUtil(timeUtil):
-    log=operationLogging()
+    log=operationLogging('data_util_log')
 
     # 返回依赖数据
     def depend_data_parse(self,dependkey,response_data,index='one'):

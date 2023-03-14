@@ -14,7 +14,7 @@ import platform
 from utils.operation_logging import operationLogging
 
 system_type = platform.system()
-log = operationLogging()
+log = operationLogging('servers_util')
 
 
 def get_system_line_break():

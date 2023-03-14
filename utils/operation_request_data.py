@@ -9,7 +9,7 @@ from utils.data_util import dataUtil
 
 class operationRequestData(dataUtil):
     def __init__(self):
-        super().__init__()
+        super(operationRequestData,self).__init__()
 
     # dependkey生成
     def depend_key_generate(self, str_in, join_str=''):
