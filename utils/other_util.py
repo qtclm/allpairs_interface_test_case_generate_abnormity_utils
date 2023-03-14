@@ -22,36 +22,12 @@ from typing import Any, Union
 import importlib
 import platform
 from utils.exception_util import *
-from utils.__init__ import match_paths as default_match_paths
+from utils.__init__ import get_project_rootpath
 
 
 class otherUtil(object):
     system_type = platform.system()
-
-    @staticmethod
-    def get_project_rootpath(match_paths: Union[list, set, tuple] = None):
-        """
-        获取项目根目录。此函数的能力体现在，不论当前module被import到任何位置，都可以正确获取项目根目录
-        :return:
-        """
-        path = os.getcwd()
-        if sys.platform == 'win32':
-            root_path = path[:path.find(':\\') + 2]
-        else:
-            root_path = os.path.altsep
-        while path != root_path:
-            # PyCharm项目中，'.idea'是必然存在的，且名称唯一
-            # match_paths=['.idea','utils','handle','config']
-            if not match_paths:
-                match_paths = default_match_paths
-            is_match = all([i in os.listdir(path) for i in match_paths])
-            if is_match:
-                return path
-            path = os.path.dirname(path)
-        if not path:
-            raise projectRootPathNotFoundError(msg='项目根目录未找到,请调整math_paths参数')
-
-    project_rootpath=get_project_rootpath()
+    project_rootpath = get_project_rootpath()
 
     @classmethod
     def recursion_remove_char(cls, str_in: object, space_chars: object, remove_type: object = 2) -> object:
@@ -98,10 +74,10 @@ class otherUtil(object):
     def isevaluatable(cls, str_in, is_dynamic_import_module=False, is_ast_eval=True):
         '''判断字符是否可被eval,安全的做法'''
         try:
-            str_in=str(str_in)
+            str_in = str(str_in)
             if is_dynamic_import_module:
                 str_in = cls.recursion_remove_char(str_in=str_in, space_chars='.')
-                module_name,import_result_dict = cls.dynamic_import_module(module_name=str_in)
+                module_name, import_result_dict = cls.dynamic_import_module(module_name=str_in)
                 if import_result_dict:
                     if __name__ == "__main__":  # 当前模块调用才更新
                         globals().update(import_result_dict)
@@ -243,7 +219,7 @@ class otherUtil(object):
 
     def pyobject_to_json_str(self, str_in, src_value_list=[], target_values_list=[]):
         '''将py对象转换为json_str'''
-        if not isinstance(str_in,str):
+        if not isinstance(str_in, str):
             return str_in
         src_value_list = ['True', 'False', 'None', '"'] if not src_value_list else src_value_list
         target_values_list = ['true', 'false', 'null', "'"] if not target_values_list else target_values_list
@@ -251,7 +227,7 @@ class otherUtil(object):
             str_in = str_in.replace(src_value, target_values_list[index])
         return str_in
 
-    def json_str_to_pyobject(self, str_in,is_eval=True):
+    def json_str_to_pyobject(self, str_in, is_eval=True):
         # 将json_str中的true/false/null，转换为python对象
         src_value_list = [' ', 'true', 'false', 'null', '<NULL>']
         target_values_list = ['', 'True', 'False', 'None', 'None']
@@ -333,13 +309,13 @@ class otherUtil(object):
         return obj
 
     @classmethod
-    def class_type_repr_dispose(cls,str_in):
+    def class_type_repr_dispose(cls, str_in):
         '''将函数repr方法返回的字符处理为eval可识别的字符'''
         str_in = str(str_in).strip()
         str_in_match = re.search('^(\[|<)\S+', str_in)
         if str_in_match:
             str_in = cls.recursion_remove_char(str_in=str_in_match.group(),
-                                               space_chars=('[','<','"', "'", ' ', '>', '"', "'",']'),
+                                               space_chars=('[', '<', '"', "'", ' ', '>', '"', "'", ']'),
                                                remove_type=2)
         return str_in
 
@@ -353,10 +329,8 @@ class otherUtil(object):
                                                space_chars=('"', "'", '<class', '<module', ' ', '>', '"', "'"),
                                                remove_type=2)
         else:
-            str_in=cls.class_type_repr_dispose(str_in=str_in)
+            str_in = cls.class_type_repr_dispose(str_in=str_in)
         return str_in
-
-
 
     @classmethod
     def dynamic_import_module(cls, module_name):
@@ -398,7 +372,7 @@ class otherUtil(object):
         import_result_dict = {}
         for index, i in enumerate(module_name_split):
             import_result_dict.update(dynamic_import_module_main(package_module=module_name_split[:index + 1]))
-        return module_name,import_result_dict
+        return module_name, import_result_dict
 
     @classmethod
     def compare_list_polishing(cls, list1: Iterable, list2: Iterable, polishing_str=None) -> (list, tuple):
@@ -497,10 +471,10 @@ class otherUtil(object):
 
 if __name__ == "__main__":
     ot = otherUtil()
-    # dict1=[{'k1':'v1','k2':[1,2,3],'k3':{"k3-1":"v3-1","k3-2":[4,5]},'k4':[{"k4-1":"v4-1"},{"k4-2":"v4-2"}]}]
-    dict1 = {'company_name': '', 'device_sn': '', 'extra_info': '', 'password': '', 'product_name': '',
-             'registry_id': '', 'soft_version': '', 'username': ''}
-    print(ot.get_project_rootpath(match_paths=['common', 'config', 'utils', 'test_case', 'test_data', 'baseView']))
+    # # dict1=[{'k1':'v1','k2':[1,2,3],'k3':{"k3-1":"v3-1","k3-2":[4,5]},'k4':[{"k4-1":"v4-1"},{"k4-2":"v4-2"}]}]
+    # dict1 = {'company_name': '', 'device_sn': '', 'extra_info': '', 'password': '', 'product_name': '',
+    #          'registry_id': '', 'soft_version': '', 'username': ''}
+    print(globals())
     # dispose_str=ot.class_type_module_dispose(str_in='<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>')
     # dispose_str2=ot.class_type_module_dispose(str_in='[<selenium.webdriver.remote.webelement.WebElement (session="d6853d3d-f510-400c-8e91-24d40eb5bdf4", element="fc7e4501-40be-4ca3-a7f6-e0871cebdcf9")>]')
     # dispose_str3=ot.class_type_module_dispose(str_in="<class 'selenium.webdriver.remote.webelement.WebElement'>")
