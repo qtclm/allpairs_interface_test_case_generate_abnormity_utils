@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@file            : operation_datas
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
 @Desc            : 操作excle和json的工具类
 """
@@ -19,7 +19,7 @@ class operationExcel(object):
         self.file_name=file_name
         self.sheet_name=sheet_name
         if self.file_path is None:
-            self.file_path =  os.path.join(otherUtil.project_rootpath,'config')
+            self.file_path = os.path.join(otherUtil.project_rootpath, 'config')
         if self.file_name is None:
             self.file_name='DataCase_ALL.xlsx'
         self.file_address = os.path.join(self.file_path, self.file_name)

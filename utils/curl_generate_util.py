@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> curl_generate_util
-@Author          : qinmin.vendor
+@file            : curl_generate_util
+@Author          : qtclm
 @Date            : 2023/2/9 15:47
 @Desc            : 
 """

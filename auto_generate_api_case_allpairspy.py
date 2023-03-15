@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@file            : auto_generate_api_case_allpairspy
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
 @Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """
@@ -31,7 +31,7 @@ from utils.operation_logging import operationLogging
 class autoGenerateApiCaseAllpairspy(object):
     time_util = timeUtil()
     log = operationLogging('auto_generate_api_case_allpairspy_log')
-    project_root_path = time_util.get_project_rootpath(match_paths=['config', 'utils'])
+    project_root_path = time_util.project_rootpath
     config_file_path = os.path.join(project_root_path, 'config')
     config_file_name = 'allpairs_config.yaml'
     yaml_obj = operationYaml(file_path=config_file_path, file_name=config_file_name)

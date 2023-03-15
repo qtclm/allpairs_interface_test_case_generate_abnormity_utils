@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
-"""    
-__author__ = qtclm
-File Name：     DataUtil
-date：          2020/8/12 16:10 
+# _*_ coding: UTF-8 _*_
 """
+@file            : data_util
+@Author          : qtclm
+@Date            : 2023/1/29 19:44
+@Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
+"""
+
 import traceback
-
 import jsonpath_rw
-
 from utils.operation_logging import operationLogging
 from jsonpath_rw_ext import parse
 from utils.time_util import timeUtil

@@ -1,19 +1,21 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@file            : send_email
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
-@Desc            :
+@Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """
 
 import smtplib
 from email.mime.text import MIMEText
+from typing import Union
+
 
 class sendEmail:
     EmailHost='smtp.163.com'
     sendUser='18160042485@163.com'
     password='5942xphtcl'
-    def send_email(self, user_list: object, sub: object, content: object) -> object:
+    def send_email(self, user_list: Union[list,tuple,set], sub: str, content: str) -> None:
         user="18160042485"+"<"+self.sendUser+">"
         message=MIMEText(content,_subtype='plain',_charset='utf-8')
         message['Subject']=sub

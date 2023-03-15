@@ -1,10 +1,11 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> wrapper_util
-@Author          : qinmin.vendor
+@file            : wrapper_util
+@Author          : qtclm
 @Date            : 2023/1/28 11:05
 @Desc            : 
 """
+
 import re
 import sys
 import time
@@ -15,7 +16,6 @@ from utils.operation_logging import operationLogging
 from utils.data_util import dataUtil
 
 # 注意事项：装饰器不能装饰classmethod
-
 log=operationLogging('wrapper_log')
 data_util=dataUtil()
 

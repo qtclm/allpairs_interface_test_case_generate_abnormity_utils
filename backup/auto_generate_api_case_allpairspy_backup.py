@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
 @project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
 @Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """

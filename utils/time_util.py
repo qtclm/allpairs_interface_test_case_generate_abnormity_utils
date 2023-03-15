@@ -1,9 +1,11 @@
-# -*- coding: utf-8 -*-
+# _*_ coding: UTF-8 _*_
 """
-__author__ = qtclm
-File Name：     time_util
-date：          2020/8/12 16:10
+@file            : time_util
+@Author          : qtclm
+@Date            : 2023/1/29 19:44
+@Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """
+
 import traceback
 
 from dateutil import parser

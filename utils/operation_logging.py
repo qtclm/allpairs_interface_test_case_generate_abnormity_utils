@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@file            : operationLogging
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
 @Desc            :
 """
@@ -18,11 +18,12 @@ from tabulate import tabulate
 from utils.__init__ import get_project_rootpath
 
 
+
 class operationLogging(object):
     __email = sendEmail()
     __email_user_list = None
     email_sub = '日志告警'  # 邮件标题
-    project_dir = get_project_rootpath()
+    project_dir=get_project_rootpath()
 
     def __init__(self, *log_path):
         self.__log_path = self.log_path(*log_path)
