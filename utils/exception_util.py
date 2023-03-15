@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> exception_util
-@Author          : qinmin.vendor
+@file            : exception_util
+@Author          : qtclm
 @Date            : 2023/2/21 11:13
 @Desc            : 
 """

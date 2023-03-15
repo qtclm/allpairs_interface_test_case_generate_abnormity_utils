@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
 @project -> file : allpairs_interface_test_case_generate_abnormity_utils -> upload_file
-@Author          : qinmin.vendor
+@Author          : qtclm
 @Date            : 2023/3/13 17:11
 @Desc            : 
 """

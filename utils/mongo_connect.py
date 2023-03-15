@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
-"""    
-__author__ = qtclm
-File Name：     Mongo_connect
-date：          2020/4/17 13:12 
+# _*_ coding: UTF-8 _*_
+"""
+@file            : mongo_connect
+@Author          : qtclm
+@Date            : 2023/1/29 19:44
+@Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
 """
 
 from utils.mongo_public import operationMongo

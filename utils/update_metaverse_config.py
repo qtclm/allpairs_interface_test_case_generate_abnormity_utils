@@ -1,3 +1,11 @@
+# _*_ coding: UTF-8 _*_
+"""
+@file            : update_metaverse_config
+@Author          : qtclm
+@Date            : 2023/2/3 11:13
+@Desc            :
+"""
+
 import json
 import os.path
 import collections
@@ -82,6 +90,10 @@ def get_env_config(env: str, server_http_port=18990):
         access_key = 'a36a7992-6f64-464f-be0f-6249212f1f5b'
         secret_key = '3RYCx2H8IW1PbbaPOMlf90UjnQnftHw0'
         bucket_name = "maint-pre-production"
+    else:
+        access_key=''
+        secret_key=''
+        bucket_name=''
     config_dict['access_key'] = access_key
     config_dict['secret_key'] = secret_key
     config_dict['bucket_name'] = bucket_name

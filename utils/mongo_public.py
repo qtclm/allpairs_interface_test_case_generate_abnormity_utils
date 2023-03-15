@@ -1,8 +1,10 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
-'''@auther :mr.qin
-@IDE:pycharm'''
-
+# _*_ coding: UTF-8 _*_
+"""
+@file            : mongo_public
+@Author          : qtclm
+@Date            : 2023/1/29 19:44
+@Desc            : 自动生成接口测试用例：支持正交实验，等价类，边界值
+"""
 import traceback
 import pymongo
 import sys

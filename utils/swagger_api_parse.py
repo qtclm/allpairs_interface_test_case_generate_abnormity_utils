@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> swagger_api_parse
-@Author          : qinmin.vendor
+@file            : swagger_api_parse
+@Author          : qtclm
 @Date            : 2023/1/12 17:55
 @Desc            :
 """

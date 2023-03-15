@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> rr
-@Author          : qinmin.vendor
+@file            : redis_public
+@Author          : qtclm
 @Date            : 2023/1/29 19:44
 @Desc            :
 """
@@ -38,7 +38,7 @@ class operationRedis(object):
 
     # 设置过期时间，单位秒
     def string_set_EX(self, key, value, time):
-        return self.r.setex(key, value, time=time)
+        return self.r.setex(name=key, value=value,time=time)
 
     # 设置过期时间，单位毫秒
     def string_set_PX(self, key, time_ms, value):
@@ -63,7 +63,7 @@ class operationRedis(object):
 
     # 增
     def hash_hset(self, name, key, value):
-        return self.r.hset()
+        return self.r.hset(name=name,key=key,value=value)
 
     # 取多个值
     def hash_hmget(self, name, key_list):

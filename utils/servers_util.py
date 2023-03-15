@@ -1,7 +1,7 @@
 # _*_ coding: UTF-8 _*_
 """
-@project -> file : city-test -> servers_util
-@Author          : qinmin.vendor
+@file            : servers_util
+@Author          : qtclm
 @Date            : 2023/2/8 19:25
 @Desc            : 
 """
