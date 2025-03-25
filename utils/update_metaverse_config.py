@@ -83,13 +83,13 @@ def get_env_config(env: str, server_http_port=18990):
     # connection_sdk_port = connection_sdk_port
     config_dict['bucket_name'] = server_http_port
     if env.strip() == 'staging':
-        access_key = 'c5d01d70-fd9e-4552-9b5e-b4feca9c221c'
-        secret_key = 'DxVh0E9Bg129XPjoduxEc6A1RNzpVZnH'
-        bucket_name = "hd1-sensetraffic-maint-a2"
-    elif env.strip() == 'demo':
-        access_key = 'a36a7992-6f64-464f-be0f-6249212f1f5b'
-        secret_key = '3RYCx2H8IW1PbbaPOMlf90UjnQnftHw0'
-        bucket_name = "maint-pre-production"
+        access_key = 'xxx'
+        secret_key = 'xxx'
+        bucket_name = "xxx"
+    elif env.strip() == 'xxx':
+        access_key = 'xxx'
+        secret_key = 'xxx'
+        bucket_name = "xxx"
     else:
         access_key=''
         secret_key=''
